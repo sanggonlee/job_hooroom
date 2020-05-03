@@ -1,2 +1,8 @@
-activate:
-	. venv/bin/activate
+.PHONY: etl
+
+etl:
+	(\
+		. venv/bin/activate; \
+		. env.sh; \
+		python -m etl; \
+	)
