@@ -1,4 +1,4 @@
-.PHONY: etl
+.PHONY: etl force_deploy
 
 etl:
 	(\
@@ -6,3 +6,6 @@ etl:
 		. env.sh; \
 		python -m etl; \
 	)
+
+force_deploy:
+	date +"%D %T" >> force_deploy
