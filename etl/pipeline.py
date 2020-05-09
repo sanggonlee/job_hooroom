@@ -18,6 +18,7 @@ class Pipeline:
 
     def run(self):
         for posting in self.__run_extraction():
+            print(posting.to_json())
             for pipe in self.pipes:
                 pipe.process(posting)
 
