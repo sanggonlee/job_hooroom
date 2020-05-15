@@ -1,3 +1,5 @@
 .now
 __pycache__
 env.sh
+
+.vercel

@@ -29,7 +29,6 @@ class LinkedinScraper:
         print('     URL: %s' % self.url)
         print('')
         print('===========================================================================================================')
-        print(hasattr(sys, 'real_prefix'))
 
         self.driver = start_chrome(self.url)
 
@@ -37,7 +36,6 @@ class LinkedinScraper:
 
         time.sleep(1)
         listings = find_all(S('li.occludable-update'))
-        print(listings)
         i = 0
         for listing in listings:
             i += 1
@@ -45,7 +43,7 @@ class LinkedinScraper:
                 break
 
             click(listing)
-            time.sleep(0.5)
+            time.sleep(1)
 
             if listing.web_element.find_elements_by_xpath(".//span[@class='artdeco-entity-lockup__label']"):
                 print('Promoted listing')
@@ -56,6 +54,7 @@ class LinkedinScraper:
 
             yield Posting(
                 title=self.__extract_job_title(),
+                link=self.__extract_link(),
                 is_remote=is_remote,
                 company_name=self.__extract_company_name(),
                 location=location,
@@ -92,6 +91,11 @@ class LinkedinScraper:
             print('Job title not found!')
         job_title = job_titles[0].text
         return job_title
+
+    def __extract_link(self):
+        return self.driver.find_element_by_xpath(
+            "//a[contains(@class, 'jobs-details-top-card__job-title-link')]"
+        ).get_attribute('href')
 
     def __extract_company_name(self):
         return self.driver.find_element_by_xpath(
