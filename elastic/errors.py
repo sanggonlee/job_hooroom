@@ -4,5 +4,5 @@ class ConfigError(Exception):
 
 
 class UnknownDocTypeError(Exception):
-    def __init__(self, type, message):
-        self.message = ('Unknown doc type %s' % type) + message
+    def __init__(self, type, context):
+        self.message = ('Unknown doc type %s from ' % type) + context

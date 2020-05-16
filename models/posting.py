@@ -35,5 +35,13 @@ class Posting:
 
         self.ingested_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+        # You might be confused why we're storing doc type in doc source,
+        # instead of ES doc_type.
+        # ES doc_type is misleading and has been removed in future releases
+        # but we probably still want to filter by doc types, although the
+        # current plan is to store only a single doc types per index.
+        # This is a safe and intuitive workaround.
+        self.doctype = 'posting'
+
     def to_json(self):
         return json.dumps(self.__dict__)

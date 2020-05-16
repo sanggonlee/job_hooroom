@@ -89,6 +89,8 @@ class LinkedinScraper:
             "//div[contains(@class, 'jobs-details__main-content')]//h2[contains(@class, 'jobs-details-top-card__job-title')]")
         if not job_titles:
             print('Job title not found!')
+            return ''
+
         job_title = job_titles[0].text
         return job_title
 
@@ -110,11 +112,13 @@ class LinkedinScraper:
         )
         if not job_details_locations:
             print('Job details locations not found!')
+            return False, ''
 
         location = job_details_locations[-1].text
         # TODO: Handles remote only, revisit when adding on-site
         is_remote = len(
-            job_details_locations) > 1 and job_details_locations[0].text == 'Remote'
+            job_details_locations
+        ) > 1 and job_details_locations[0].text == 'Remote'
 
         return is_remote, location
 
@@ -159,5 +163,6 @@ class LinkedinScraper:
         )
         if not skill_elems:
             print('Skills not found!')
+            return []
 
         return [el.text for el in skill_elems]

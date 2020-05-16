@@ -31,7 +31,10 @@ class ElasticsearchRequestor:
         """
             Ingest an ElasticSearch document
         """
-        self.client.index(index, body)
+        return self.client.index(
+            index=index,
+            body=body,
+        )
 
     def ping(self):
         """
