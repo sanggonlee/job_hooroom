@@ -1,3 +1,4 @@
+import certifi
 import json
 import os
 from elasticsearch import Elasticsearch
@@ -10,7 +11,11 @@ class ElasticsearchRequestor:
         if ES_CLUSTER_URL is None:
             raise ConfigError('ES Cluster URL not found')
 
-        self.client = Elasticsearch([ES_CLUSTER_URL])
+        self.client = Elasticsearch(
+            [ES_CLUSTER_URL],
+            use_ssl=True,
+            ca_certs=certifi.where()
+        )
 
     def index_exists(self, index):
         """
