@@ -36,6 +36,13 @@ class ElasticsearchRequestor:
             body=body,
         )
 
+    def search(self, indices=[], query={}, include_source=False):
+        return self.client.search(
+            index=','.join(indices),
+            body=query,
+            _source=include_source,
+        )
+
     def ping(self):
         """
             Ping

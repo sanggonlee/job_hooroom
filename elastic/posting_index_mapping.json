@@ -18,7 +18,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "company_name": {
             "type": "text",
@@ -27,7 +28,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "description": {
             "type": "text"
@@ -39,7 +41,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "industry": {
             "type": "text",
@@ -48,7 +51,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "is_remote": {
             "type": "boolean"
@@ -60,7 +64,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "link": {
             "type": "text"
@@ -72,7 +77,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "seniority": {
             "type": "text",
@@ -81,7 +87,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "skills": {
             "type": "text",
@@ -90,7 +97,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "title": {
             "type": "text",
@@ -99,7 +107,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         },
         "words": {
             "type": "text",
@@ -108,7 +117,8 @@
                     "type": "keyword",
                     "ignore_above": 256
                 }
-            }
+            },
+            "fielddata": true
         }
     }
 }
