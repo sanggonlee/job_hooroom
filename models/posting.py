@@ -1,7 +1,9 @@
 from datetime import datetime
 import json
+from decorators.serializable import serializable
 
 
+@serializable
 class Posting:
     def __init__(
         self,
@@ -42,6 +44,3 @@ class Posting:
         # current plan is to store only a single doc types per index.
         # This is a safe and intuitive workaround.
         self.doctype = 'posting'
-
-    def to_json(self):
-        return json.dumps(self.__dict__)

@@ -1,31 +1,71 @@
 import os
 import sys
 import time
-from typing import Generator
+from datetime import datetime
+from typing import Generator, Optional, Tuple
+from selenium import webdriver
 from helium import *
+from models.log_segment import LogSegment
 from models.posting import Posting
+from etl.linkedin.enums import Title, Industry
+
+MAX_POSTINGS_PER_PAGE = 25
 
 
-def get_url(get_only_last_24_hrs=True, get_only_remote=True):
-    url = 'https://www.linkedin.com/jobs/search/?'
+def get_url(
+    get_only_last_24_hrs=True,
+    get_only_remote=True,
+    get_worldwide=False,
+    job_functions=['it'],
+    industry=[Industry.ComputerSoftware],
+    titles=[
+        Title.SoftwareEngineer,
+        Title.Developer,
+        Title.SeniorSoftwareEngineer,
+        Title.WebDeveloper,
+        Title.SeniorDeveloper,
+        Title.ApplicationDeveloper,
+        Title.FrontendDeveloper,
+        Title.FrontendEngineer,
+        Title.BackEndDeveloper,
+    ],
+):
+    url = 'https://www.linkedin.com/jobs/search?'
+    filters = []
 
+    if get_worldwide:
+        filters.append('location=Worldwide')
     if get_only_last_24_hrs:
-        url += 'f_TPR=r86400&'
+        filters.append('f_TPR=r86400')
     if get_only_remote:
-        url += 'f_CF=f_WRA&'
+        filters.append('f_CF=f_WRA')
+    if len(job_functions) > 0:
+        filters.append('f_F=' + '%2C'.join(job_functions))
+    if len(industry) > 0:
+        filters.append(
+            'f_I=' + '%2C'.join([str(ind.value) for ind in industry]))
+    if len(titles) > 0:
+        filters.append(
+            'f_T=' + '%2C'.join([str(title.value) for title in titles]))
 
-    return url
+    return url + '&'.join(filters)
 
 
 class LinkedinScraper:
 
-    url = get_url()
+    url = get_url(
+        get_only_remote=False,
+        industry=[],
+        job_functions=[],
+    )
 
-    def run(self) -> Generator[Posting, None, None]:
+    def run(self) -> Generator[Tuple[Posting, Optional[LogSegment]], None, None]:
         print('===========================================================================================================')
         print('')
         print(' Linkedin scrape starting')
         print('')
+        print('     Started: %s' %
+              datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         print('     URL: %s' % self.url)
         print('')
         print('===========================================================================================================')
@@ -35,36 +75,24 @@ class LinkedinScraper:
         self.__login()
 
         time.sleep(1)
-        listings = find_all(S('li.occludable-update'))
-        i = 0
-        for listing in listings:
-            i += 1
-            if i > 4:
+
+        curr_offset = 0
+
+        while True:
+            listings = self.driver.find_elements_by_xpath(
+                "//li[contains(@class, 'occludable-update')]")
+            if curr_offset > 0:
                 break
 
-            click(listing)
+            if len(listings) == 0:
+                break
+
+            for posting, log in self.__process_listings(listings):
+                yield posting, log
+
+            curr_offset += len(listings)
+            go_to(self.url + '&start=' + str(curr_offset))
             time.sleep(1)
-
-            if listing.web_element.find_elements_by_xpath(".//span[@class='artdeco-entity-lockup__label']"):
-                print('Promoted listing')
-                # continue
-
-            is_remote, location = self.__extract_location()
-            seniority, employment_type, industry, job_functions = self.__extract_job_attributes()
-
-            yield Posting(
-                title=self.__extract_job_title(),
-                link=self.__extract_link(),
-                is_remote=is_remote,
-                company_name=self.__extract_company_name(),
-                location=location,
-                description=self.__extract_description(),
-                seniority=seniority,
-                employment_type=employment_type,
-                industry=industry,
-                job_functions=job_functions,
-                skills=self.__extract_skills(),
-            )
 
         print('===========================================================================================================')
         print('')
@@ -77,63 +105,141 @@ class LinkedinScraper:
         LINKEDIN_PASSWORD = os.getenv('LINKEDIN_PASSWORD')
 
         click('SIGN IN')
-        #wait_until(Button('Sign in').exists)
+        # wait_until(Button('Sign in').exists)
         time.sleep(1)
         write(LINKEDIN_LOGIN, into=S('input#username'))
         time.sleep(0.3)
         write(LINKEDIN_PASSWORD, into='Password')
         press(ENTER)
 
-    def __extract_job_title(self):
+    def __process_listings(self, listings):
+        for listing in listings:
+
+            # Click on the corner to avoid clicking company (which is a link)
+            action = webdriver.common.action_chains.ActionChains(self.driver)
+            action.move_to_element_with_offset(listing, 5, 5)
+            action.click()
+            action.perform()
+
+            time.sleep(0.5)
+
+            # if listing.web_element.find_elements_by_xpath(".//span[@class='artdeco-entity-lockup__label']"):
+            #     print('Promoted listing')
+            #     # continue
+
+            errors = []
+            messages = []
+
+            title = self.__extract_job_title(errors, messages)
+            link = self.__extract_link(errors, messages)
+            is_remote, location = self.__extract_location(
+                errors, messages)
+            company_name = self.__extract_company_name(
+                errors, messages)
+            description = self.__extract_description(
+                errors, messages)
+            seniority, employment_type, industry, job_functions = self.__extract_job_attributes(
+                errors, messages)
+            skills = self.__extract_skills(errors, messages)
+
+            log = None if not errors and not messages else LogSegment(
+                status='failure' if errors else 'success',
+                errors=errors,
+                messages=messages,
+            )
+
+            yield Posting(
+                title=title,
+                link=link,
+                is_remote=is_remote,
+                company_name=company_name,
+                location=location,
+                description=description,
+                seniority=seniority,
+                employment_type=employment_type,
+                industry=industry,
+                job_functions=job_functions,
+                skills=skills,
+            ), log
+
+    def __extract_job_title(self, errors, messages) -> str:
         job_titles = self.driver.find_elements_by_xpath(
             "//div[contains(@class, 'jobs-details__main-content')]//h2[contains(@class, 'jobs-details-top-card__job-title')]")
         if not job_titles:
-            print('Job title not found!')
+            errors.append('Job title elements not found')
             return ''
 
         job_title = job_titles[0].text
         return job_title
 
-    def __extract_link(self):
-        return self.driver.find_element_by_xpath(
+    def __extract_link(self, errors, messages) -> str:
+        links = self.driver.find_elements_by_xpath(
             "//a[contains(@class, 'jobs-details-top-card__job-title-link')]"
-        ).get_attribute('href')
+        )
+        if not links:
+            messages.append('Link elements not found')
+            return ''
 
-    def __extract_company_name(self):
-        return self.driver.find_element_by_xpath(
+        return links[0].get_attribute('href')
+
+    def __extract_company_name(self, errors, messages) -> str:
+        elems = self.driver.find_elements_by_xpath(
             "//div[contains(@class, 'jobs-details-top-card__company-info')]//a[contains(@data-control-name, 'company_link')]"
-        ).text
+        )
+        if elems:
+            return elems[0].text
 
-    def __extract_location(self) -> (bool, str):
+        elems = self.driver.find_elements_by_xpath(
+            "//div[contains(@class, 'jobs-details-top-card__company-info')]"
+        )
+        if elems:
+            return elems[0].text
+
+        messages.append('Company name not found')
+        return ''
+
+    def __extract_location(self, errors, messages) -> (bool, str):
         """ Returns is_remote and location """
 
         job_details_locations = self.driver.find_elements_by_xpath(
             "//div[contains(@class, 'jobs-details-top-card__company-info')]//span[contains(@class, 'jobs-details-top-card__bullet')]"
         )
+
+        if job_details_locations:
+            location = job_details_locations[-1].text
+            is_remote = len(
+                job_details_locations
+            ) > 1 and job_details_locations[0].text == 'Remote'
+            return is_remote, location
+
+        job_details_locations = self.driver.find_elements_by_xpath(
+            "//div[contains(@class, 'jobs-details-top-card__company-info')]//a[contains(@class, 'jobs-details-top-card__exact-location')]"
+        )
         if not job_details_locations:
-            print('Job details locations not found!')
+            messages.append('Job details locations not found')
             return False, ''
 
-        location = job_details_locations[-1].text
-        # TODO: Handles remote only, revisit when adding on-site
-        is_remote = len(
-            job_details_locations
-        ) > 1 and job_details_locations[0].text == 'Remote'
+        location = job_details_locations[0].text
+        return False, location
 
-        return is_remote, location
-
-    def __extract_description(self) -> str:
-        return self.driver.find_element_by_xpath(
+    def __extract_description(self, errors, messages) -> str:
+        elems = self.driver.find_elements_by_xpath(
             "//div[contains(@class, 'jobs-description-content__text')]//span"
-        ).text
+        )
+        if not elems:
+            messages.append('Job description not found')
+            return ''
 
-    def __extract_job_attributes(self) -> (str, str, [str], [str]):
+        return elems[0].text
+
+    def __extract_job_attributes(self, errors, messages) -> (str, str, [str], [str]):
         """ Returns seniority, employment_type, industry, job_funtions """
         job_type_box_elems = self.driver.find_elements_by_xpath(
             "//div[contains(@class, 'jobs-description-details')]//div[contains(@class, 'jobs-box__group')]"
         )
         if not job_type_box_elems:
-            print('Job type elements not found!')
+            messages.append('Job type elements not found')
+            return '', '', [], []
 
         def extract_text_list(el) -> [str]:
             return [e.text for e in el.find_elements_by_xpath('.//ul//li')]
@@ -153,16 +259,16 @@ class LinkedinScraper:
             elif attr == 'Job Functions':
                 job_functions = extract_text_list(elem)
             else:
-                print('Unknown job type attribute', attr)
+                errors.append('Unknown job type attribute: %' % attr)
 
         return seniority, employment_type, industry, job_functions
 
-    def __extract_skills(self) -> [str]:
+    def __extract_skills(self, errors, messages) -> [str]:
         skill_elems = self.driver.find_elements_by_xpath(
             "//ul[contains(@class, 'jobs-ppc-criteria__list--skills')]//li//span[contains(@class, 'jobs-ppc-criteria__value')]"
         )
         if not skill_elems:
-            print('Skills not found!')
+            messages.append('Skills not found')
             return []
 
         return [el.text for el in skill_elems]

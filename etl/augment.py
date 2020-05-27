@@ -1,5 +1,9 @@
+from typing import Optional
+from models.log_segment import LogSegment
+
+
 class Augmentor:
-    def process(self, posting):
+    def process(self, posting, log: Optional[LogSegment]):
         # Set is_remote to true if title or location contains "remote"
         posting.is_remote = posting.is_remote or (
             'remote' in posting.title.lower()
@@ -22,5 +26,3 @@ class Augmentor:
             posting.seniority,
             posting.employment_type,
         ] + posting.industry + posting.job_functions + posting.skills
-
-        return posting

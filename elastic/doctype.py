@@ -2,4 +2,5 @@ from enum import Enum
 
 
 class DocType(Enum):
-    Posting = 1
+    Posting = 'posting'
+    PipelineLog = 'pipeline_log'

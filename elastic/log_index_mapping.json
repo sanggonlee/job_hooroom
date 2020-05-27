@@ -1,0 +1,41 @@
+{
+    "properties": {
+        "completed_at": {
+            "type":   "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+        },
+        "logs": {
+            "properties": {
+                "doc_id": {
+                    "type": "text"
+                },
+                "data": {
+                    "type": "text"
+                },
+                "errors": {
+                    "type": "text"
+                },
+                "messages": {
+                    "type": "text"
+                },
+                "status": {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword",
+                            "ignore_above": 256
+                        }
+                    },
+                    "fielddata": true
+                }
+            }
+        },
+        "num_processed": {
+            "type": "long"
+        },
+        "started_at": {
+            "type":   "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+        }
+    }
+}
