@@ -82,6 +82,7 @@ class LinkedinScraper:
         while True:
             if retry_count > 4:
                 print('Retry count exceeded. Exiting...')
+                break
 
             listings = self.driver.find_elements_by_xpath(
                 "//li[contains(@class, 'occludable-update')]")
