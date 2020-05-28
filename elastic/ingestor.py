@@ -24,7 +24,7 @@ class ElasticsearchIngestor():
         """
             Ingest an ElasticSearch document
         """
-        self.requestor.ingest(
+        return self.requestor.ingest(
             index=self.index,
             body=body,
         )
@@ -57,3 +57,15 @@ class PostingIngestor(ElasticsearchIngestor):
 
     def _get_index_mapping_filename(self):
         return 'elastic/posting_index_mapping.json'
+
+
+class LogIngestor(ElasticsearchIngestor):
+    def __init(self):
+        self.doctype = DocType.PipelineLog
+        super().__init__()
+
+    def _get_index(self):
+        return 'log_' + datetime.now().strftime('%Y')
+
+    def _get_index_mapping_filename(self):
+        return 'elastic/log_index_mapping.json'
