@@ -3,7 +3,7 @@ import sys
 import time
 from datetime import datetime
 from typing import Generator, Optional, Tuple
-from selenium import webdriver
+import selenium
 from helium import *
 from models.log_segment import LogSegment
 from models.posting import Posting
@@ -76,19 +76,26 @@ class LinkedinScraper:
 
         time.sleep(1)
 
+        retry_count = 0
         curr_offset = 0
 
         while True:
+            if retry_count > 4:
+                print('Retry count exceeded. Exiting...')
+
             listings = self.driver.find_elements_by_xpath(
                 "//li[contains(@class, 'occludable-update')]")
-            if curr_offset > 0:
-                break
 
             if len(listings) == 0:
                 break
 
-            for posting, log in self.__process_listings(listings):
-                yield posting, log
+            try:
+                for posting, log in self.__process_listings(listings):
+                    yield posting, log
+            except selenium.common.exceptions.StaleElementReferenceException:
+                retry_count += 1
+                print('Retrying... count:' + str(retry_count))
+                continue
 
             curr_offset += len(listings)
             go_to(self.url + '&start=' + str(curr_offset))
@@ -116,7 +123,8 @@ class LinkedinScraper:
         for listing in listings:
 
             # Click on the corner to avoid clicking company (which is a link)
-            action = webdriver.common.action_chains.ActionChains(self.driver)
+            action = selenium.webdriver.common.action_chains.ActionChains(
+                self.driver)
             action.move_to_element_with_offset(listing, 5, 5)
             action.click()
             action.perform()
