@@ -100,7 +100,7 @@ class LinkedinScraper:
 
             curr_offset += len(listings)
             go_to(self.url + '&start=' + str(curr_offset))
-            time.sleep(1)
+            time.sleep(2)
 
         print('===========================================================================================================')
         print('')
