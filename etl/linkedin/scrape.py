@@ -70,11 +70,11 @@ class LinkedinScraper:
         print('')
         print('===========================================================================================================')
 
-        self.driver = start_chrome(self.url)
+        self.driver = start_chrome(self.url, headless=True)
 
         self.__login()
 
-        time.sleep(1)
+        time.sleep(3)
 
         retry_count = 0
         curr_offset = 0
@@ -92,15 +92,14 @@ class LinkedinScraper:
 
             try:
                 for posting, log in self.__process_listings(listings):
+                    curr_offset += 1
                     yield posting, log
             except selenium.common.exceptions.StaleElementReferenceException:
                 retry_count += 1
                 print('Retrying... count:' + str(retry_count))
-                continue
 
-            curr_offset += len(listings)
             go_to(self.url + '&start=' + str(curr_offset))
-            time.sleep(2)
+            time.sleep(5)
 
         print('===========================================================================================================')
         print('')
