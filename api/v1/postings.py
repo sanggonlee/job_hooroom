@@ -12,24 +12,30 @@ class handler(BaseHTTPRequestHandler):
 
         search = Search(queries)
 
+        limit = 10
+        if 'limit' in queries and queries['limit'] and queries['limit'][0].isdigit():
+            limit = int(queries['limit'][0])
+
+        offset = 0
+        if 'offset' in queries and queries['offset'] and queries['offset'][0].isdigit():
+            offset = int(queries['offset'][0])
+
         result = ElasticsearchQueryer().filter(
             search
         ).limit(
-            0
-        ).aggregation(
-            'is_remote',
-            'location',
-            'base_location',
-            'seniority',
-            'industry',
-            'employment_type',
-            'job_functions',
-            'skills',
-            'words',
-        ).execute()
+            limit
+        ).offset(
+            offset
+        ).execute(include_source=True)
+
         print(result)
 
-        resp_body = result["aggregations"]
+        # TODO: detect possible key errors
+
+        resp_body = {
+            "total": result["hits"]["total"]["value"],
+            "hits": [hit["_source"] for hit in result["hits"]["hits"]],
+        }
 
         self.send_response(200)
         self.send_header('Content-type', 'application/json')

@@ -32,7 +32,8 @@
             "fielddata": true
         },
         "description": {
-            "type": "text"
+            "type": "text",
+            "enabled": false
         },
         "employment_type": {
             "type": "text",
