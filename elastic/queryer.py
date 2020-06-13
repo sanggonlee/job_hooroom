@@ -9,11 +9,23 @@ class BoolJoiner(Enum):
     Or = 2
 
 
+class FilterType(Enum):
+    Match = 1
+    Range = 2
+
+
 class FilterCriterion:
-    def __init__(self, key: str, accessor: Callable[[Search], List], joiner: BoolJoiner):
+    def __init__(
+        self,
+        key: str,
+        accessor: Callable[[Search], List],
+        joiner: BoolJoiner,
+        filter_type: FilterType = FilterType.Match,
+    ):
         self.key = key
         self.accessor = accessor
         self.joiner = joiner
+        self.filter_type = filter_type
 
 
 class ElasticsearchQueryer:
@@ -58,11 +70,33 @@ class ElasticsearchQueryer:
             accessor=lambda s: s.skills,
             joiner=BoolJoiner.And,
         ),
+        FilterCriterion(
+            key='ingested_at',
+            accessor=lambda s: s.ingested_at,
+            joiner=BoolJoiner.And,
+            filter_type=FilterType.Range,
+        ),
     ]
 
     def __init__(self):
         self.requestor = ElasticsearchRequestor()
+        self.indices = []
         self.query = {}
+
+    def postings(self):
+        self.indices = ['posting_*']
+        return self
+
+    def logs(self):
+        self.indices = ['log_*']
+        return self
+
+    def all(self):
+        self.query["query"] = {
+            "match_all": {}
+        }
+
+        return self
 
     def filter(self, search: Search):
         self.query["query"] = {
@@ -76,6 +110,7 @@ class ElasticsearchQueryer:
                 criterion.key,
                 criterion.accessor(search),
                 criterion.joiner,
+                criterion.filter_type,
             )
 
         if filters:
@@ -112,14 +147,26 @@ class ElasticsearchQueryer:
         print(self.query)
         return self.requestor.search(
             # TODO: Hook up search criteria into indices
-            indices=[],
+            indices=self.indices,
             query=self.query,
             include_source=include_source,
         )
 
 
-def add_filter(filters: List, key: str, values: List, joiner: BoolJoiner):
+def add_filter(
+    filters: List,
+    key: str,
+    values: List,
+    joiner: BoolJoiner,
+    filter_type: FilterType,
+):
     if not values:
+        return
+
+    if filter_type is FilterType.Range:
+        if len(values) is not 2:
+            raise ValueError('Expected 2 values for range')
+        add_range(filters, key, values[0], values[1])
         return
 
     if len(values) is 1:
@@ -135,6 +182,17 @@ def add_filter(filters: List, key: str, values: List, joiner: BoolJoiner):
         return
 
     raise RuntimeError('Unexpected bool joiner given for filter')
+
+
+def add_range(filters: List, key: str, lower: str, upper: str):
+    clause = {}
+    clause[key] = {
+        "gte": lower,
+        "lte": upper,
+    }
+    filters.append({
+        "range": clause,
+    })
 
 
 def add_predicate(filters: List, key: str, value: str):

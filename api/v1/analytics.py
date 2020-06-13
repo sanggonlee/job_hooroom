@@ -12,7 +12,7 @@ class handler(BaseHTTPRequestHandler):
 
         search = Search(queries)
 
-        result = ElasticsearchQueryer().filter(
+        result = ElasticsearchQueryer().postings().filter(
             search
         ).limit(
             0
@@ -27,7 +27,6 @@ class handler(BaseHTTPRequestHandler):
             'skills',
             'words',
         ).execute()
-        print(result)
 
         resp_body = result["aggregations"]
 

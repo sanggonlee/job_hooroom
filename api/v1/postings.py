@@ -20,15 +20,13 @@ class handler(BaseHTTPRequestHandler):
         if 'offset' in queries and queries['offset'] and queries['offset'][0].isdigit():
             offset = int(queries['offset'][0])
 
-        result = ElasticsearchQueryer().filter(
+        result = ElasticsearchQueryer().postings().filter(
             search
         ).limit(
             limit
         ).offset(
             offset
         ).execute(include_source=True)
-
-        print(result)
 
         # TODO: detect possible key errors
 
