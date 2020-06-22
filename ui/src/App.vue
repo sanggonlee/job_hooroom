@@ -1,9 +1,12 @@
 <template>
-  <div class="container">
-    <SearchBar @termSubmit="onSubmit"></SearchBar>
-    <div class="row">
-      <CardListItem></CardListItem>
-    </div>
+  <div class="ui container">
+    <h2 class="ui center aligned header">Job Hooroom</h2>
+    <!-- <SearchBar @termSubmit="onSubmit"></SearchBar> -->
+      <SearchBar></SearchBar>
+      <CardListItem :locations="locations"></CardListItem>
+      <CardListItem :employmentTypes="employmentTypes"></CardListItem>
+      <CardListItem :skills="skills"></CardListItem>
+      <CardListItem :isRemote="isRemote"></CardListItem>
 
   </div>
 </template>
@@ -12,7 +15,6 @@
 import axios from 'axios';
 
 import SearchBar from './components/SearchBar';
-// import CardList from './components/CardList';
 import CardListItem from './components/CardListItem';
 
 const mockAPI = "https://5eb817ae5652960016785cf7.mockapi.io/api/v1/analytics" // analytics, postings
@@ -25,24 +27,39 @@ export default {
   },
   data() {
     return {
-      isRemote: {},
-      employmentTypes: {},
-      locations: {},
-      skills: {}
+      isRemote: [],
+      employmentTypes: [],
+      locations: [],
+      skills: []
     }
   },
-  methods: {
-    onSubmit() {
-      axios.get(mockAPI)
+  mounted() {
+    axios.get(mockAPI)
         .then(response => {
-          console.log(response);
-          // this.isRemote = response.isRemote;
+          this.isRemote = response.data.is_remote.buckets;
+          this.employmentTypes = response.data.employment_type.buckets;
+          this.locations = response.data.location.buckets;
+          this.skills = response.data.skills.buckets;
         })
-    }
+  },
+  methods: {
+    // onSubmit() {
+    //   axios.get(mockAPI)
+    //     .then(response => {
+    //       console.log(response.data);
+    //       this.isRemote = response.data.is_remote.buckets;
+    //       this.employmentTypes = response.data.employment_type;
+    //       this.locations = response.data.location.buckets;
+    //       this.skills = response.data.skills;
+    //       console.log(this.locations.buckets);
+    //     })
+    // }
   }
 }
 </script>
 
-<style>
-
-</style>
+<style scoped>
+  .header {
+    margin: 20px !important;
+  }
+</style>>
