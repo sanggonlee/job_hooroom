@@ -1,13 +1,13 @@
 <template>
   <div class="ui container">
     <h2 class="ui center aligned header">Job Hooroom</h2>
-    <!-- <SearchBar @termSubmit="onSubmit"></SearchBar> -->
-      <SearchBar></SearchBar>
-      <CardListItem :locations="locations"></CardListItem>
-      <CardListItem :employmentTypes="employmentTypes"></CardListItem>
-      <CardListItem :skills="skills"></CardListItem>
-      <CardListItem :isRemote="isRemote"></CardListItem>
-
+      <SearchBar />
+      <div class="flex-box">
+        <GraphCard :locations="locations"></GraphCard>
+        <GraphCard :employmentTypes="employmentTypes"></GraphCard>
+        <GraphCard :skills="skills"></GraphCard>
+        <GraphCard :isRemote="isRemote"></GraphCard>
+      </div>
   </div>
 </template>
 
@@ -15,15 +15,15 @@
 import axios from 'axios';
 
 import SearchBar from './components/SearchBar';
-import CardListItem from './components/CardListItem';
+import GraphCard from './components/GraphCard';
 
-const mockAPI = "https://5eb817ae5652960016785cf7.mockapi.io/api/v1/analytics" // analytics, postings
+const mockAPI = process.env.VUE_APP_MOCK_API;
 
 export default {
   name: 'App',
   components: {
     SearchBar,
-    CardListItem
+    GraphCard
   },
   data() {
     return {
@@ -41,25 +41,19 @@ export default {
           this.locations = response.data.location.buckets;
           this.skills = response.data.skills.buckets;
         })
-  },
-  methods: {
-    // onSubmit() {
-    //   axios.get(mockAPI)
-    //     .then(response => {
-    //       console.log(response.data);
-    //       this.isRemote = response.data.is_remote.buckets;
-    //       this.employmentTypes = response.data.employment_type;
-    //       this.locations = response.data.location.buckets;
-    //       this.skills = response.data.skills;
-    //       console.log(this.locations.buckets);
-    //     })
-    // }
   }
 }
 </script>
 
 <style scoped>
-  .header {
-    margin: 20px !important;
+  .ui.header:first-child {
+    margin-top: 10px;
+  }
+  .flex-box {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-around;
+    align-content: space-around;
   }
 </style>>

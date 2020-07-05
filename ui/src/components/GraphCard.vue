@@ -1,28 +1,28 @@
 <template>
-    <div v-if="locations" class="ui fluid card">
+    <div v-if="locations" class="ui card">
         <div class="content">
             <h5 class="header">Locations</h5>
             <p class="card-text">Source:</p>
             <canvas id="location-chart"></canvas>
         </div>
     </div>
-    <div v-else-if="employmentTypes" class="ui fluid card">
+    <div v-else-if="employmentTypes" class="ui card">
         <div class="content">
             <h5 class="header">Employment Types</h5>
             <p class="card-text">Source:</p>
             <canvas id="employmentType-chart"></canvas>
         </div>
     </div>
-    <div v-else-if="skills" class="ui fluid card">
+    <div v-else-if="skills" class="ui card">
         <div class="content">
             <h5 class="header">Skills</h5>
             <p class="card-text">Source:</p>
             <canvas id="skill-chart"></canvas>
         </div>
     </div>
-    <div v-else-if="isRemote" class="ui fluid card">
+    <div v-else-if="isRemote" class="ui card">
         <div class="content">
-            <h5 class="header">Remote Eligible</h5>
+            <h5 class="header">Remote</h5>
             <p class="card-text">Source:</p>
             <canvas id="remote-chart"></canvas>
         </div>
@@ -33,16 +33,18 @@
 import Chart from 'chart.js';
 
 export default {
-    name: 'CardListItem',
+    name: 'GraphCard',
     props: ['locations', 'employmentTypes', 'skills', 'isRemote'],
     updated() {
         let label = [];
         let value = [];
+        let backgroundColor = [];
         
         if (this.locations) {
             for (let i = 0; i < this.locations.length; i++) {
                 label.push(this.locations[i].key);
                 value.push(this.locations[i].doc_count);
+                backgroundColor.push(this.getRandomColor());
             }
 
             const ctx = document.getElementById('location-chart');
@@ -52,13 +54,16 @@ export default {
                 data: {
                     labels: label,
                     datasets: [{
-                        label: 'Job numbers by location',
-                        data: value
+                        data: value,
+                        backgroundColor: backgroundColor
                     }]
                 },
                 options: {
+                    legend: {
+                        display: false
+                    },
                     scales: {
-                        yAexs: [{
+                        xAxes: [{
                             ticks: {
                                 beginAtZero: true
                             }
@@ -71,6 +76,7 @@ export default {
                for (let i = 0; i < this.employmentTypes.length; i++) {
                 label.push(this.employmentTypes[i].key);
                 value.push(this.employmentTypes[i].doc_count);
+                backgroundColor.push(this.getRandomColor());
             }
 
             const ctx = document.getElementById('employmentType-chart');
@@ -80,13 +86,16 @@ export default {
                 data: {
                     labels: label,
                     datasets: [{
-                        label: 'Job numbers by Employment Types',
-                        data: value
+                        data: value,
+                        backgroundColor: backgroundColor
                     }]
                 },
                 options: {
+                    legend: {
+                        display: false
+                    },
                     scales: {
-                        yAexs: [{
+                        xAxes: [{
                             ticks: {
                                 beginAtZero: true
                             }
@@ -99,6 +108,7 @@ export default {
                for (let i = 0; i < this.skills.length; i++) {
                 label.push(this.skills[i].key);
                 value.push(this.skills[i].doc_count);
+                backgroundColor.push(this.getRandomColor());
             }
 
             const ctx = document.getElementById('skill-chart');
@@ -108,13 +118,16 @@ export default {
                 data: {
                     labels: label,
                     datasets: [{
-                        label: 'Job numbers by Skills',
-                        data: value
+                        data: value,
+                        backgroundColor: backgroundColor
                     }]
                 },
                 options: {
+                    legend: {
+                        display: false
+                    },
                     scales: {
-                        yAexs: [{
+                        xAxes: [{
                             ticks: {
                                 beginAtZero: true
                             }
@@ -127,6 +140,7 @@ export default {
                for (let i = 0; i < this.isRemote.length; i++) {
                 label.push(this.isRemote[i].key);
                 value.push(this.isRemote[i].doc_count);
+                backgroundColor.push(this.getRandomColor());
             }
 
             const ctx = document.getElementById('remote-chart');
@@ -136,13 +150,16 @@ export default {
                 data: {
                     labels: label,
                     datasets: [{
-                        label: 'Job numbers by Remote Eligible',
-                        data: value
+                        data: value,
+                        backgroundColor: backgroundColor
                     }]
                 },
                 options: {
+                    legend: {
+                        display: false
+                    },
                     scales: {
-                        yAexs: [{
+                        xAxes: [{
                             ticks: {
                                 beginAtZero: true
                             }
@@ -151,18 +168,24 @@ export default {
                 }
             });
         }
+    },
+    methods: {
+        // Generate Random value of color for graph bar
+        getRandomColor: function()  {
+            var letters = '0123456789ABCDEF'.split('');
+            var color = '#';
+            for (var i = 0; i < 6; i++ ) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
     }
 }
 </script>
 
 <style scoped>
-    .cardList {
-        width: 80%;
-        margin: auto !important;
-    }
-    .card {
-        float: left;
-        width: 45% !important;
+    .ui.card {
+        flex: 400px 1;
         margin: 10px;
     }
 </style>
