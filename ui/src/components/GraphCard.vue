@@ -15,7 +15,6 @@ export default {
     props: ['graphProp', 'title'],
     data: function() {
         return {
-            headerLabels: Object.keys(this.$store.state.graph.data),
             headerText: ''
         }
     },
@@ -72,7 +71,7 @@ export default {
         getValues: function() {
             return this.graphProp.map(item => item.doc_count);
         },
-        
+
         // Translate Title based on Props
         translateTitle: function() {
             if (this.title === 'is_remote') {
