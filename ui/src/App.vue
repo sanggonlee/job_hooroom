@@ -2,22 +2,16 @@
   <div class="ui container">
     <h2 class="ui center aligned header">Job Hooroom</h2>
       <SearchBar />
-      <div class="flex-box">
-        <GraphCard :locations="locations"></GraphCard>
-        <GraphCard :employmentTypes="employmentTypes"></GraphCard>
-        <GraphCard :skills="skills"></GraphCard>
-        <GraphCard :isRemote="isRemote"></GraphCard>
+      <div v-if="this.graphData" class="flex-box">
+        <GraphCard v-for="(value, index) in this.graphData.data" :key="index" :graphProp="value.buckets" :title="index" />
       </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-
 import SearchBar from './components/SearchBar';
 import GraphCard from './components/GraphCard';
 
-const mockAPI = process.env.VUE_APP_MOCK_API;
 
 export default {
   name: 'App',
@@ -25,22 +19,14 @@ export default {
     SearchBar,
     GraphCard
   },
-  data() {
+  data: function() {
     return {
-      isRemote: [],
-      employmentTypes: [],
-      locations: [],
-      skills: []
+      graphData: null
     }
   },
-  mounted() {
-    axios.get(mockAPI)
-        .then(response => {
-          this.isRemote = response.data.is_remote.buckets;
-          this.employmentTypes = response.data.employment_type.buckets;
-          this.locations = response.data.location.buckets;
-          this.skills = response.data.skills.buckets;
-        })
+  async beforeCreate() {
+    await this.$store.dispatch('setAnalytics');
+    this.graphData = this.$store.state.graph;
   }
 }
 </script>
