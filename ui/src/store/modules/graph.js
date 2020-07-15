@@ -15,6 +15,12 @@ const actions = {
     }
 }
 
+const getters = {
+    getGraphData: function(state) {
+        return state;
+    }
+}
+
 const mutations = {
     SET_ANALYTICS_DATA: (state, data) => {
         state.data = data;
@@ -24,5 +30,6 @@ const mutations = {
 export default {
     state,
     actions,
+    getters,
     mutations
 }

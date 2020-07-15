@@ -12,7 +12,6 @@
 import SearchBar from './components/SearchBar';
 import GraphCard from './components/GraphCard';
 
-
 export default {
   name: 'App',
   components: {
@@ -26,7 +25,7 @@ export default {
   },
   async beforeCreate() {
     await this.$store.dispatch('setAnalytics');
-    this.graphData = this.$store.state.graph;
+    this.graphData = this.$store.getters.getGraphData;
   }
 }
 </script>

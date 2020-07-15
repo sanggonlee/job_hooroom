@@ -13,11 +13,6 @@ import Chart from 'chart.js';
 export default {
     name: 'GraphCard',
     props: ['graphProp', 'title'],
-    data: function() {
-        return {
-            headerText: ''
-        }
-    },
     mounted() {
         // Generate Chart
         const ctx = document.getElementById(this.title);
@@ -74,16 +69,13 @@ export default {
 
         // Translate Title based on Props
         translateTitle: function() {
-            if (this.title === 'is_remote') {
-                return this.headerText = 'Remote';
-            } else if (this.title === 'location') {
-                return this.headerText = 'Location';
-            } else if (this.title === 'employment_type') {
-                return this.headerText = 'Employment Type'
-            } else {
-                this.headerText = 'Skills';
-            }
-            return this.headerText;
+            const graphTitle = {
+                'is_remote': 'Remote',
+                'location': 'Location',
+                'employment_type': 'Employment Type',
+                'skills': 'Skills'
+            };
+            return graphTitle[this.title];
         }
     }
 }
