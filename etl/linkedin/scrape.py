@@ -267,7 +267,7 @@ class LinkedinScraper:
             elif attr == 'Job Functions':
                 job_functions = extract_text_list(elem)
             else:
-                errors.append('Unknown job type attribute: %' % attr)
+                errors.append('Unknown job type attribute: %s' % attr)
 
         return seniority, employment_type, industry, job_functions
 
