@@ -1,23 +1,21 @@
 import axios from 'axios';
 
-const mockAPI = process.env.VUE_APP_MOCK_API;
+const apiUrl = process.env.VUE_APP_API;
 
 const state = {
-    data: []
+    data: {}
 }
 
 const actions = {
-    setAnalytics: ({ commit }) => {
-        axios.get(mockAPI)
-        .then(response => {
-            commit('SET_ANALYTICS_DATA', response.data);
-        })
+    setAnalytics: async ({ commit }) => {
+        const response = await axios.get(apiUrl);
+        commit('SET_ANALYTICS_DATA', response.data);
     }
 }
 
 const getters = {
-    getGraphData: function(state) {
-        return state;
+    graphData: state => {
+        return state.data;
     }
 }
 

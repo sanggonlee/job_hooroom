@@ -3,12 +3,13 @@
     <h2 class="ui center aligned header">Job Hooroom</h2>
       <SearchBar />
       <div v-if="this.graphData" class="flex-box">
-        <GraphCard v-for="(value, index) in this.graphData.data" :key="index" :graphProp="value.buckets" :title="index" />
+        <GraphCard v-for="(value, index) in this.graphData" :key="index" :graphProp="value.buckets" :title="index" />
       </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import SearchBar from './components/SearchBar';
 import GraphCard from './components/GraphCard';
 
@@ -18,14 +19,13 @@ export default {
     SearchBar,
     GraphCard
   },
-  data: function() {
-    return {
-      graphData: null
-    }
+  computed: {
+    ...mapGetters([
+      'graphData'
+    ])
   },
-  async beforeCreate() {
-    await this.$store.dispatch('setAnalytics');
-    this.graphData = this.$store.getters.getGraphData;
+  beforeCreate() {
+    this.$store.dispatch('setAnalytics');
   }
 }
 </script>
