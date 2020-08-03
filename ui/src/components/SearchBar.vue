@@ -17,7 +17,6 @@ export default {
     methods: {
         onInput: function() {
             this.$emit('termSubmit', this.searchTerm);
-            //console.log(this.searchTerm);
         }
     }
 }

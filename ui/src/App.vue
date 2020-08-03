@@ -1,48 +1,44 @@
 <template>
-  <div class="container">
-    <SearchBar @termSubmit="onSubmit"></SearchBar>
-    <div class="row">
-      <CardListItem></CardListItem>
-    </div>
-
+  <div class="ui container">
+    <h2 class="ui center aligned header">Job Hooroom</h2>
+      <SearchBar />
+      <div v-if="this.graphData" class="flex-box">
+        <GraphCard v-for="(value, index) in this.graphData" :key="index" :graphProp="value.buckets" :title="index" />
+      </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-
+import { mapGetters } from 'vuex';
 import SearchBar from './components/SearchBar';
-// import CardList from './components/CardList';
-import CardListItem from './components/CardListItem';
-
-const mockAPI = "https://5eb817ae5652960016785cf7.mockapi.io/api/v1/analytics" // analytics, postings
+import GraphCard from './components/GraphCard';
 
 export default {
   name: 'App',
   components: {
     SearchBar,
-    CardListItem
+    GraphCard
   },
-  data() {
-    return {
-      isRemote: {},
-      employmentTypes: {},
-      locations: {},
-      skills: {}
-    }
+  computed: {
+    ...mapGetters([
+      'graphData'
+    ])
   },
-  methods: {
-    onSubmit() {
-      axios.get(mockAPI)
-        .then(response => {
-          console.log(response);
-          // this.isRemote = response.isRemote;
-        })
-    }
+  beforeCreate() {
+    this.$store.dispatch('setAnalytics');
   }
 }
 </script>
 
-<style>
-
-</style>
+<style scoped>
+  .ui.header:first-child {
+    margin-top: 10px;
+  }
+  .flex-box {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-around;
+    align-content: space-around;
+  }
+</style>>
