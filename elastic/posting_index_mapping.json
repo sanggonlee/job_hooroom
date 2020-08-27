@@ -68,7 +68,7 @@
             "fielddata": true
         },
         "link": {
-            "type": "text"
+            "type": "keyword"
         },
         "location": {
             "type": "text",

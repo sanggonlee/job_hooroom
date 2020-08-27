@@ -1,5 +1,9 @@
 class Search():
-    def __init__(self, queries):
+    def __init__(self, queries, title=None, company_name=None, link=None):
+        self.title = title
+        self.company_name = company_name
+        self.link = link
+
         self.is_remote = None
         if 'is_remote' in queries:
             self.is_remote = queries['is_remote']

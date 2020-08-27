@@ -21,11 +21,13 @@ class FilterCriterion:
         accessor: Callable[[Search], List],
         joiner: BoolJoiner,
         filter_type: FilterType = FilterType.Match,
+        by_keyword: bool = False,
     ):
         self.key = key
         self.accessor = accessor
         self.joiner = joiner
         self.filter_type = filter_type
+        self.by_keyword = by_keyword
 
 
 class ElasticsearchQueryer:
@@ -35,6 +37,23 @@ class ElasticsearchQueryer:
     """
 
     criteria = [
+        FilterCriterion(
+            key='title',
+            accessor=lambda s: s.title,
+            joiner=BoolJoiner.Or,
+            by_keyword=True,
+        ),
+        FilterCriterion(
+            key='company_name',
+            accessor=lambda s: s.company_name,
+            joiner=BoolJoiner.Or,
+            by_keyword=True,
+        ),
+        FilterCriterion(
+            key='link',
+            accessor=lambda s: s.link,
+            joiner=BoolJoiner.Or,
+        ),
         FilterCriterion(
             key='is_remote',
             accessor=lambda s: s.is_remote,
@@ -78,10 +97,11 @@ class ElasticsearchQueryer:
         ),
     ]
 
-    def __init__(self):
+    def __init__(self, should_log=True):
         self.requestor = ElasticsearchRequestor()
         self.indices = []
         self.query = {}
+        self.should_log = should_log
 
     def postings(self):
         self.indices = ['posting_*']
@@ -111,6 +131,7 @@ class ElasticsearchQueryer:
                 criterion.accessor(search),
                 criterion.joiner,
                 criterion.filter_type,
+                criterion.by_keyword,
             )
 
         if filters:
@@ -144,7 +165,9 @@ class ElasticsearchQueryer:
         return self
 
     def execute(self, include_source=False):
-        print(self.query)
+        if self.should_log:
+            print(self.query)
+
         return self.requestor.search(
             # TODO: Hook up search criteria into indices
             indices=self.indices,
@@ -159,7 +182,11 @@ def add_filter(
     values: List,
     joiner: BoolJoiner,
     filter_type: FilterType,
+    by_keyword: bool,
 ):
+    if by_keyword:
+        key = key + '.keyword'
+
     if not values:
         return
 
