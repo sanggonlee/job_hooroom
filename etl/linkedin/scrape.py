@@ -70,7 +70,7 @@ class LinkedinScraper:
         print('')
         print('===========================================================================================================')
 
-        self.driver = start_chrome(self.url, headless=True)
+        self.driver = start_firefox(self.url, headless=True)
 
         self.__login()
 
