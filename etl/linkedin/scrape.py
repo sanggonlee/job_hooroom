@@ -122,6 +122,9 @@ class LinkedinScraper:
     def __process_listings(self, listings):
         for listing in listings:
 
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView();", listing)
+
             # Click on the corner to avoid clicking company (which is a link)
             action = selenium.webdriver.common.action_chains.ActionChains(
                 self.driver)
