@@ -2,7 +2,7 @@
   <div class="search-bar-root">
     <div class="search-bar-main">
       <span class="search-bar-input">
-        <input v-on:focus="onSearchFocus" />
+        <input ref="textbox" v-on:focus="onSearchFocus" />
         <search-token-pill
           v-for="(value, index) in searchComponents"
           :key="index"
@@ -33,16 +33,12 @@
 </template>
 
 <script>
-import {
-  POSTING_ATTRIBUTES,
-  POSTING_ATTRIBUTE_LABELS,
-  SEARCH_STATE,
-} from "../constants";
-import SearchAttribSelectorRow from "./SearchAttribSelectorRow";
-import SearchTokenPill from "./SearchTokenPill";
-import SearchTokenPillEditable from "./SearchTokenPillEditable";
+import { POSTING_ATTRIBUTES, POSTING_ATTRIBUTE_LABELS, SEARCH_STATE } from '../constants';
+import SearchAttribSelectorRow from './SearchAttribSelectorRow';
+import SearchTokenPill from './SearchTokenPill';
+import SearchTokenPillEditable from './SearchTokenPillEditable';
 export default {
-  name: "SearchBar",
+  name: 'SearchBar',
   components: {
     SearchAttribSelectorRow,
     SearchTokenPillEditable,
@@ -60,23 +56,27 @@ export default {
     };
   },
   methods: {
-    onInput: function () {
-      this.$emit("term-submit", "");
+    onInput: function() {
+      this.$emit('term-submit', '');
     },
-    onSearchFocus: function () {
+    onSearchFocus: function() {
       this.currentSearchState = SEARCH_STATE.selectAttrib;
     },
-    onSearchAttribSelected: function (attrib) {
+    onSearchAttribSelected: function(attrib) {
       this.currentSearchState = SEARCH_STATE.searchTerm;
       this.currentSearchAttrib = attrib;
     },
-    onSearchComponentEntered: function (searchComponent) {
+    onSearchComponentEntered: function(searchComponent) {
       this.searchComponents.push(searchComponent);
 
       this.currentSearchAttrib = undefined;
+      this.focusInput();
     },
-    onSearchComponentDeleted: function () {
+    onSearchComponentDeleted: function() {
       this.currentSearchAttrib = undefined;
+    },
+    focusInput() {
+      this.$refs.textbox.focus();
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <span class="search-token-pill-editable">
-    <span>{{POSTING_ATTRIBUTE_LABELS[attrib]}}:</span>
+    <span>{{ POSTING_ATTRIBUTE_LABELS[attrib] }}:</span>
     <input
       ref="term"
       class="search-token-pill-editable-term"
@@ -12,16 +12,16 @@
 </template>
 
 <script>
-import { POSTING_ATTRIBUTE_LABELS } from "../constants";
+import { POSTING_ATTRIBUTE_LABELS } from '../constants';
 
 export default {
-  name: "SearchTokenPillEditable",
-  props: ["attrib"],
+  name: 'SearchTokenPillEditable',
+  props: ['attrib'],
   data() {
     return {
       POSTING_ATTRIBUTE_LABELS,
 
-      term: "",
+      term: '',
     };
   },
   mounted() {
@@ -29,13 +29,11 @@ export default {
   },
   methods: {
     focusInput() {
-      console.log(this.$refs);
-      console.log(this.$refs.term.$el);
       this.$refs.term.focus();
     },
   },
   watch: {
-    attrib: function () {
+    attrib: function() {
       this.focusInput();
     },
   },
