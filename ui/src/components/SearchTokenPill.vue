@@ -20,8 +20,8 @@ export default {
 .search-token-pill {
   display: inline-block;
   padding: 6px;
-  margin: 4px;
+  margin: 4px 0;
   border-radius: 3px;
-  background-color: lightsteelblue;
+  border: solid 2px black;
 }
 </style>

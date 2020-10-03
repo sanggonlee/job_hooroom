@@ -71,6 +71,8 @@ export default {
 
       this.currentSearchAttrib = undefined;
       this.focusInput();
+
+      this.$emit('attrib-added', searchComponent);
     },
     onSearchComponentDeleted: function() {
       this.currentSearchAttrib = undefined;

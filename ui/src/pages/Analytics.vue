@@ -1,6 +1,8 @@
 <template>
   <div class="ui container">
-    <SearchBar />
+    <SearchBar
+      @attrib-added="onSearchAttribAdded"
+    />
     <div v-if="this.graphData" class="flex-box">
       <GraphCard
         v-for="(value, index) in this.graphs"
@@ -37,10 +39,14 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["setAnalytics"]),
+    ...mapActions(["getAnalytics", "setSearchAttrib"]),
+    onSearchAttribAdded: function(searchComponent) {
+      this.setSearchAttrib(searchComponent);
+      this.getAnalytics();
+    }
   },
   created() {
-    this.setAnalytics();
+    this.getAnalytics();
   },
 };
 </script>
