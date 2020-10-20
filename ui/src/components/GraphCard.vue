@@ -15,39 +15,53 @@ export default {
   name: "GraphCard",
   props: ["dataKey", "graphProp", "title"],
 
+  data: function() {
+    return {
+      chart: null,
+    }
+  },
+
   methods: {
     drawChart: function () {
       // Generate Chart
       const ctx = document.getElementById(this.title);
+      const labels = this.getKeys();
+      const datasets = [
+        {
+          data: this.getValues(),
+          backgroundColor: this.getRandomColor(),
+        },
+      ];
 
-      new Chart(ctx, {
-        type: "horizontalBar",
-        data: {
-          labels: this.getKeys(),
-          datasets: [
-            {
-              data: this.getValues(),
-              backgroundColor: this.getRandomColor(),
+      if (!this.chart) {
+        this.chart = new Chart(ctx, {
+          type: "horizontalBar",
+          data: {
+            labels,
+            datasets,
+          },
+          options: {
+            legend: {
+              display: false,
             },
-          ],
-        },
-        options: {
-          legend: {
-            display: false,
-          },
-          scales: {
-            xAxes: [
-              {
-                ticks: {
-                  beginAtZero: true,
+            scales: {
+              xAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
-        },
-      });
+        });
+      } else {
+        this.chart.data.labels = labels;
+        this.chart.data.datasets = datasets;
+        this.chart.update();
+      }
     },
-
+  
     // Generate Random value of color for graph bar
     getRandomColor: function () {
       let colorList = [];

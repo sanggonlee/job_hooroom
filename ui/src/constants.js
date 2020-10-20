@@ -21,3 +21,9 @@ export const POSTING_ATTRIBUTE_LABELS = Object.freeze({
     [POSTING_ATTRIBUTES.seniority]: 'Seniority',
     [POSTING_ATTRIBUTES.words]: 'Keywords',
 });
+
+export const SEARCH_STATE = Object.freeze({
+    unfocused: 'unfocused',
+    selectAttrib: 'selectAttrib',
+    searchTerm: 'searchTerm',
+});
