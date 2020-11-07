@@ -12,7 +12,7 @@ class Augmentor:
         )
 
         # Copy location to base location
-        if posting.base_location is '':
+        if posting.base_location == '':
             posting.base_location = posting.location
 
         # Set location to remote if remote

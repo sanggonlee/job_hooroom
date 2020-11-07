@@ -145,7 +145,7 @@ class ElasticsearchQueryer:
 
         for term in argv:
             field = term
-            if field is not 'is_remote':
+            if field != 'is_remote':
                 field += '.keyword'
 
             self.query["aggs"][term] = {
@@ -191,12 +191,12 @@ def add_filter(
         return
 
     if filter_type is FilterType.Range:
-        if len(values) is not 2:
+        if len(values) != 2:
             raise ValueError('Expected 2 values for range')
         add_range(filters, key, values[0], values[1])
         return
 
-    if len(values) is 1:
+    if len(values) == 1:
         add_predicate(filters, key, values[0])
         return
 

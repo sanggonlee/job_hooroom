@@ -35,7 +35,7 @@ class Search():
         self.ingested_at = None
         if 'ingested_at' in queries:
             values = queries['ingested_at']
-            if len(values) is not 1 or values[0].count(',') is not 1:
+            if len(values) != 1 or values[0].count(',') != 1:
                 raise ValueError(
                     'Single value with a single comma expected for ingested_at filter')
 
